@@ -7,6 +7,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <div class="logo">
           <img src="/logonav.png" alt="Xtreme kart racing logo" />
         </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <ul class="nav-links">
           <li><a href="#home">Home</a></li>
           <li><a href="#steam">STEAM</a></li>
@@ -15,6 +20,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
           <li><a href="#timeline">Timeline</a></li>
         </ul>
       </nav>
+      <div class="nav-overlay" aria-hidden="true"></div>
 
       <div class="hero-content">
         <div class="hero-text">
@@ -150,36 +156,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 
     <section class="timeline" id="timeline" data-reveal>
       <h2>Event Timeline</h2>
-      <div class="timeline-track">
-        <div class="timeline-item t1">
-          <h3>Event Briefing</h3>
-          <p>June 21</p>
-        </div>
-        <div class="timeline-item t2">
-          <h3>Field Visit</h3>
-          <p>July 5</p>
-        </div>
-        <div class="timeline-item t3">
-          <h3>Workshop 01 - Designing</h3>
-          <p>July 12</p>
-        </div>
-        <div class="timeline-item t4">
-          <h3>Workshop 02 - Manufacturing</h3>
-          <p>September 20</p>
-        </div>
-        <div class="timeline-item t5">
-          <h3>Testing</h3>
-          <p>October 18</p>
-        </div>
-        <div class="timeline-item t6">
-          <h3>Practice Sessions</h3>
-          <p>November 14</p>
-        </div>
-        <div class="timeline-item t7">
-          <h3>Qualifying & Race</h3>
-          <p>November 15</p>
-        </div>
-      </div>
+      <div class="timeline-track"></div>
     </section>
 
     <section class="tagline" id="action" data-reveal>
@@ -218,6 +195,28 @@ const toggleNav = () => {
 
 toggleNav()
 window.addEventListener('scroll', toggleNav)
+
+const navToggle = document.querySelector<HTMLButtonElement>('.nav-toggle')
+const navOverlay = document.querySelector<HTMLElement>('.nav-overlay')
+const navLinksList = document.querySelector<HTMLElement>('.nav-links')
+const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav-links a'))
+
+const setNavOpen = (open: boolean) => {
+  if (!navToggle || !navLinksList) return
+  navLinksList.classList.toggle('open', open)
+  navToggle.setAttribute('aria-expanded', open ? 'true' : 'false')
+  navOverlay?.classList.toggle('open', open)
+  document.body.classList.toggle('nav-open', open)
+}
+
+navToggle?.addEventListener('click', () => {
+  const isOpen = navLinksList?.classList.contains('open')
+  setNavOpen(!isOpen)
+})
+
+navOverlay?.addEventListener('click', () => setNavOpen(false))
+
+navLinks.forEach(link => link.addEventListener('click', () => setNavOpen(false)))
 
 const detailCounters = Array.from(document.querySelectorAll<HTMLElement>('[data-count]'))
 const animateCount = (el: HTMLElement, to: number) => {
@@ -265,7 +264,6 @@ const revealObserver = new IntersectionObserver(
 
 revealTargets.forEach(el => revealObserver.observe(el))
 
-const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav-links a'))
 const sections = navLinks
   .map(link => document.querySelector<HTMLElement>(link.getAttribute('href') || ''))
   .filter(Boolean) as HTMLElement[]
